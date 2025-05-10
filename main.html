@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marvel Rivals Style Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #0a0a0a, #3a4452);
+            overflow: hidden;
+        }
+
+        .calculator {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .display {
+            width: 320px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 20px;
+            font-size: 2em;
+            color: #00ffcc;
+            text-align: right;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid #00ffcc;
+            box-shadow: 0 0 20px #00ffcc;
+        }
+
+        .display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: #00ffcc;
+            color: #000;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #00ffcc;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.4s ease;
+        }
+
+        button:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .operator {
+            color: #ff0066;
+        }
+
+        .operator:hover {
+            background: #ff0066;
+            color: #fff;
+        }
+
+        .equals {
+            background: #ff0066;
+            color: #fff;
+        }
+
+        .equals:hover {
+            background: #00ffcc;
+            color: #000;
+        }
+
+        .clear {
+            color: #ff3333;
+        }
+
+        .clear:hover {
+            background: #ff3333;
+            color: #fff;
+        }
+
+        @media (max-width: 400px) {
+            .calculator {
+                transform: scale(0.8);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button onclick="appendToDisplay('(')">(</button>
+            <button onclick="appendToDisplay(')')">)</button>
+            <button class="operator" onclick="appendToDisplay('/')">÷</button>
+            <button onclick="appendToDisplay('7')">7</button>
+            <button onclick="appendToDisplay('8')">8</button>
+            <button onclick="appendToDisplay('9')">9</button>
+            <button class="operator" onclick="appendToDisplay('*')">×</button>
+            <button onclick="appendToDisplay('4')">4</button>
+            <button onclick="appendToDisplay('5')">5</button>
+            <button onclick="appendToDisplay('6')">6</button>
+            <button class="operator" onclick="appendToDisplay('-')">-</button>
+            <button onclick="appendToDisplay('1')">1</button>
+            <button onclick="appendToDisplay('2')">2</button>
+            <button onclick="appendToDisplay('3')">3</button>
+            <button class="operator" onclick="appendToDisplay('+')">+</button>
+            <button onclick="appendToDisplay('0')">0</button>
+            <button onclick="appendToDisplay('.')">.</button>
+            <button onclick="backspace()">←</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        let currentInput = '0';
+        let memory = 0;
+        let operation = '';
+
+        function appendToDisplay(value) {
+            if (currentInput === '0' && value !== '.') {
+                currentInput = value;
+            } else {
+                currentInput += value;
+            }
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            display.textContent = currentInput;
+            display.animate([
+                { transform: 'scale(1)', opacity: 1 },
+                { transform: 'scale(1.05)', opacity: 0.8 },
+                { transform: 'scale(1)', opacity: 1 }
+            ], {
+                duration: 200,
+                iterations: 1
+            });
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            memory = 0;
+            operation = '';
+            updateDisplay();
+        }
+
+        function backspace() {
+            currentInput = currentInput.slice(0, -1);
+            if (currentInput === '') {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        function calculate() {
+            try {
+                const result = eval(currentInput);
+                currentInput = result.toString();
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
+                setTimeout(clearDisplay, 1000);
+            }
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+            if (/\d/.test(key)) appendToDisplay(key);
+            else if (key === '.') appendToDisplay('.');
+            else if (key === '+') appendToDisplay('+');
+            else if (key === '-') appendToDisplay('-');
+            else if (key === '*') appendToDisplay('*');
+            else if (key === '/') appendToDisplay('/');
+            else if (key === '(') appendToDisplay('(');
+            else if (key === ')') appendToDisplay(')');
+            else if (key === 'Enter') calculate();
+            else if (key === 'Backspace') backspace();
+            else if (key === 'Escape') clearDisplay();
+        });
+    </script>
+</body>
+</html>
